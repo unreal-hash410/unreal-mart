@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unreal Mart - Kiryana Store</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#f5f7f5;color:#18221b}
+header{background:#16833b;color:white;padding:16px 5%;display:flex;align-items:center;justify-content:space-between;gap:20px;position:sticky;top:0;z-index:5}
+.logo{font-size:25px;font-weight:800}.logo span{color:#ffd34d}
+.search{flex:1;max-width:600px;padding:12px 16px;border:0;border-radius:25px;font-size:15px}
+.cart{background:#fff;color:#16833b;border:0;border-radius:22px;padding:11px 17px;font-weight:bold;cursor:pointer}
+.hero{padding:55px 5%;background:linear-gradient(120deg,#e5f7e9,#fff8df);display:flex;align-items:center;justify-content:space-between;gap:30px}
+.hero h1{font-size:clamp(35px,6vw,62px);max-width:650px}.hero p{margin:15px 0 25px;color:#59645d;font-size:18px}.btn{background:#16833b;color:white;border:0;padding:14px 24px;border-radius:9px;font-weight:bold;cursor:pointer}
+.hero-icon{font-size:110px}
+section{padding:35px 5%}.title{font-size:28px;margin-bottom:20px}
+.categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.cat{background:white;border-radius:14px;padding:22px 10px;text-align:center;box-shadow:0 2px 10px #0000000d;cursor:pointer}.cat div{font-size:32px;margin-bottom:8px}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+.card{background:white;padding:15px;border-radius:15px;box-shadow:0 3px 12px #0000000d}.pic{height:130px;border-radius:12px;background:#eef7ef;display:flex;align-items:center;justify-content:center;font-size:60px;margin-bottom:12px}.card h3{font-size:17px}.price{font-weight:bold;color:#16833b;margin:8px 0 12px}.add{width:100%;padding:10px;border:0;border-radius:8px;background:#16833b;color:white;font-weight:bold;cursor:pointer}
+footer{background:#102318;color:#dbe8de;text-align:center;padding:28px;margin-top:20px}
+.overlay{display:none;position:fixed;inset:0;background:#0008;z-index:10}.panel{position:absolute;right:0;top:0;height:100%;width:min(420px,100%);background:white;padding:22px;overflow:auto}.close{float:right;border:0;background:#eee;border-radius:50%;width:35px;height:35px;cursor:pointer}.cart-item{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #ddd}.total{font-size:21px;font-weight:bold;margin:20px 0}
+.form input,.form textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #ccd5ce;border-radius:8px}.empty{color:#777;margin-top:20px}
+@media(max-width:650px){header{flex-wrap:wrap}.search{order:3;flex-basis:100%}.hero{padding:35px 5%}.hero-icon{font-size:70px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">UNREAL <span>MART</span></div>
+  <input class="search" id="search" placeholder="Search groceries..." oninput="renderProducts()">
+  <button class="cart" onclick="openCart()">🛒 Cart (<span id="count">0</span>)</button>
+</header>
+
+<div class="hero">
+  <div><h1>Your Daily Needs, Delivered.</h1><p>Groceries and everyday essentials from your local online kiryana store.</p><button class="btn" onclick="document.getElementById('shop').scrollIntoView()">Shop Now</button></div>
+  <div class="hero-icon">🛒</div>
+</div>
+
+<section>
+<h2 class="title">Categories</h2>
+<div class="categories">
+<div class="cat" onclick="setCat('Snacks')"><div>🍪</div>Snacks</div>
+<div class="cat" onclick="setCat('Drinks')"><div>🥤</div>Drinks</div>
+<div class="cat" onclick="setCat('Grocery')"><div>🍚</div>Grocery</div>
+<div class="cat" onclick="setCat('Dairy')"><div>🥛</div>Dairy</div>
+<div class="cat" onclick="setCat('Personal Care')"><div>🧼</div>Personal Care</div>
+<div class="cat" onclick="setCat('Household')"><div>🧹</div>Household</div>
+</div>
+</section>
+
+<section id="shop">
+<h2 class="title">Popular Products</h2>
+<div class="products" id="products"></div>
+</section>
+
+<footer><b>UNREAL MART</b><br><br>Your local online kiryana store • Cash on Delivery<br><br>© 2026 Unreal Mart</footer>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeCart()">
+<div class="panel">
+<button class="close" onclick="closeCart()">✕</button>
+<h2>🛒 Your Cart</h2>
+<div id="cartItems"></div>
+<div class="total" id="total">Total: Rs. 0</div>
+<div class="form">
+<h3>Delivery Details</h3>
+<input id="name" placeholder="Your name">
+<input id="phone" placeholder="Phone number">
+<textarea id="address" rows="3" placeholder="Delivery address"></textarea>
+<button class="btn" style="width:100%;margin-top:8px" onclick="placeOrder()">Place Order</button>
+</div>
+</div></div>
+
+<script>
+const products=[
+{name:"Lays Classic",price:100,cat:"Snacks",icon:"🥔"},
+{name:"Coca-Cola 1.5L",price:180,cat:"Drinks",icon:"🥤"},
+{name:"Milk 1 Liter",price:250,cat:"Dairy",icon:"🥛"},
+{name:"Sugar 1kg",price:180,cat:"Grocery",icon:"🍚"},
+{name:"Tapal Tea",price:320,cat:"Grocery",icon:"☕"},
+{name:"Surf Excel",price:350,cat:"Household",icon:"🧺"},
+{name:"Lux Soap",price:150,cat:"Personal Care",icon:"🧼"},
+{name:"Biscuits",price:80,cat:"Snacks",icon:"🍪"}
+];
+let cart=[],category="All";
+function renderProducts(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const list=products.filter(p=>(category==="All"||p.cat===category)&&p.name.toLowerCase().includes(q));
+ document.getElementById("products").innerHTML=list.map((p,i)=>`<div class="card"><div class="pic">${p.icon}</div><h3>${p.name}</h3><div class="price">Rs. ${p.price}</div><button class="add" onclick="add(${products.indexOf(p)})">Add to Cart</button></div>`).join("")||"<p class='empty'>No products found.</p>";
+}
+function setCat(c){category=c;document.getElementById("shop").scrollIntoView();renderProducts()}
+function add(i){cart.push(products[i]);update();openCart()}
+function update(){document.getElementById("count").textContent=cart.length;let total=cart.reduce((s,p)=>s+p.price,0);document.getElementById("total").textContent="Total: Rs. "+total;
+document.getElementById("cartItems").innerHTML=cart.length?cart.map((p,i)=>`<div class="cart-item"><span>${p.icon} ${p.name}</span><b>Rs. ${p.price} <button onclick="removeItem(${i})" style="border:0;background:none;cursor:pointer">✕</button></b></div>`).join(""):"<p class='empty'>Your cart is empty.</p>"}
+function removeItem(i){cart.splice(i,1);update()}
+function openCart(){document.getElementById("overlay").style.display="block";update()}
+function closeCart(){document.getElementById("overlay").style.display="none"}
+function placeOrder(){if(!cart.length)return alert("Your cart is empty.");if(!name.value||!phone.value||!address.value)return alert("Please fill in your delivery details.");alert("Demo order placed! Connect this button to WhatsApp/backend when you are ready.");}
+renderProducts();
+</script>
+</body>
+</html>
